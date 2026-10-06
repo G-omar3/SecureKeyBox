@@ -13,16 +13,21 @@ This repository presents the architecture at a public level. It does not contain
 - [Edge network position](#edge-network-position)
 - [Internal architecture](#internal-architecture)
 - [Functional modules](#functional-modules)
-- [Product dashboard views](#product-dashboard-views)
-- [Signed reports and exports](#signed-reports-and-exports)
 - [Technology role map](#technology-role-map)
 - [How the system works](#how-the-system-works)
 - [Technology details](#technology-details)
+- [Platform and system administration](#platform-and-system-administration)
+- [Network security and vulnerability assessment](#network-security-and-vulnerability-assessment)
+- [Backend and operator interface](#backend-and-operator-interface)
+- [Product dashboard views](#product-dashboard-views)
 - [Data and evidence model](#data-and-evidence-model)
 - [Log integrity and auditability](#log-integrity-and-auditability)
+- [Signed reports and exports](#signed-reports-and-exports)
+- [Resilience mode](#resilience-mode)
+- [Startup and diagnostics](#startup-and-diagnostics)
+- [CI/CD pipeline](#cicd-pipeline)
 - [Assistant and knowledge layer](#assistant-and-knowledge-layer)
 - [RAG evaluation results](#rag-evaluation-results)
-- [Resilience mode](#resilience-mode)
 - [Security boundaries](#security-boundaries)
 - [License](#license)
 
@@ -95,57 +100,6 @@ SecureKeyBox is presented as a product, not as a collection of disconnected tool
 | Integrity register | Chains and signs important events to detect later alteration. | Verifiable audit trail. |
 | SOC assistant | Explains alerts, reports, logs, and procedures in operator language. | Summaries, diagnostic steps, recommended actions. |
 
-## Product dashboard views
-
-The interface gives operators a direct view of the appliance state, detected equipment, active services, incidents, and audit indicators. The following original prototype screenshots retain their French interface labels. Values and host addresses show the captured test environment.
-
-### Operational dashboard
-
-The overview combines active equipment, blocked addresses, ledger integrity, critical vulnerabilities, and incidents awaiting analysis. Risk-ranked hosts and ledger activity charts help prioritize investigation. CPU, memory, network throughput, and service status show whether the appliance is healthy.
-
-![SecureKeyBox dashboard overview](assets/report-diagrams/framed/dashboard-overview.png)
-
-### Detected equipment
-
-The inventory distinguishes active, known, authorized, monitored, blocked, and offline equipment. Each card combines identity, address, device category, risk score, observed traffic, protocols, and alert or vulnerability counters. Search and status filters help operators select the host to investigate.
-
-![SecureKeyBox detected equipment](assets/report-diagrams/framed/dashboard-assets.png)
-
-### Integrity and traceability
-
-The integrity view displays chain validity, event count, recent changes, last verification, signature status, and current sequence. Filters narrow the audit trail by period, component, action, integrity, importance, actor, or address. The grouped timeline links recorded changes to their verification status.
-
-![SecureKeyBox integrity dashboard](assets/report-diagrams/framed/integrity-dashboard.png)
-
-## Signed reports and exports
-
-SecureKeyBox includes a reporting layer for operational follow-up, security review, incident reconstruction, and audit evidence. Reports are generated from normalized events and can be tied back to the signed ledger so the operator can show when a report was produced, what it contained, and whether the associated evidence chain still validates.
-
-![SecureKeyBox signed reports dashboard](assets/report-diagrams/framed/reports-dashboard.png)
-
-### Report types
-
-| Report type | Purpose | Typical content |
-| --- | --- | --- |
-| Executive report | Gives management a readable security summary. | Network summary, number of assets, main alerts, high risks, critical vulnerabilities, recommended actions. |
-| Equipment report | Documents one host or device in detail. | Identity, traffic, protocols, alerts, vulnerabilities, and blocking history for a selected asset. |
-| Incident report | Reconstructs a security event. | Timeline, source and destination IPs, Suricata alerts, Zeek events, actions taken, and integrity proof. |
-| Integrity report | Proves the state of the evidence chain. | Number of changes, modified files, signatures, chain state, last hash, and verification result. |
-
-### Export formats
-
-| Format | Use |
-| --- | --- |
-| PDF | Human-readable signed report for audits, management reviews, and incident documentation. |
-| CSV | Lightweight export for SIEM import, spreadsheet filtering, or automated processing. |
-| Excel | Structured workbook for operational review, sorting, filtering, and sharing with non-technical teams. |
-
-The platform settings also control presentation preferences such as interface language, table density, theme, and date format, so exported views remain consistent with operational needs.
-
-![SecureKeyBox platform settings](assets/report-diagrams/framed/settings-dashboard.png)
-
-The settings view exposes light, dark, and system themes; French and English language selection; table density; and date formatting. Separate navigation entries organize network, collection, alerts, reports, and security settings. Save and reset controls manage pending presentation changes.
-
 ## Technology role map
 
 The implementation can rely on well-known open-source components while keeping the product value in integration, orchestration, presentation, and evidence handling.
@@ -194,33 +148,39 @@ The technologies below are described by role, not by private configuration. The 
 | Signed ledger | Preserves proof of sensitive events. | Important events, hashes, previous record reference, signature material. | Tamper-evident audit chain. | Makes later alteration detectable by checking hash continuity and signature validity. |
 | Assistant / RAG layer | Helps operators understand incidents and procedures. | User questions, indexed documentation, selected events, reports. | Explanation, summary, diagnostic checklist, suggested response. | Retrieves relevant local context before generating an answer, then leaves critical validation to the operator. |
 
-### Technology diagrams
+## Platform and system administration
 
-Each technology block has a focused diagram showing how it receives input, what it does inside the appliance, and what it returns to the rest of the system.
-
-#### Linux appliance runtime
+### Linux appliance runtime
 
 ![Linux appliance runtime](assets/diagrams/tech-01-platform-runtime.svg)
 
 The runtime layer starts the appliance services, supervises process state, exposes network interfaces, manages local storage permissions, and runs scheduled collection tasks. It is the base that keeps the product stable even when one service must restart or recover.
 
-#### System administration with Webmin
+### Webmin administration
 
 ![SecureKeyBox Webmin system administration](assets/report-diagrams/framed/webmin-dashboard.png)
 
 Webmin provides a separate host administration view alongside the SOC dashboard. The supplied capture identifies a Raspberry Pi 5 running Ubuntu Linux and shows CPU, physical and virtual memory, disk usage, uptime, running processes, and package updates. Operators use this view to diagnose resource pressure and inspect the underlying host; security-event investigation remains in the product dashboard. The snapshot shows high virtual-memory usage, which deserves investigation but does not by itself establish a service failure.
 
-#### Firewall engine
+## Network security and vulnerability assessment
+
+### Firewall enforcement
 
 ![Firewall and detection architecture](assets/report-diagrams/framed/suricata-firewall-architecture.png)
 
 The firewall engine applies the validated security policy at the network edge. It receives interface zones, operator-approved rules, and block decisions from the backend, then returns rule state, allowed/refused flow information, and auditable change events.
 
-#### Intrusion detection and traffic analysis
+### Detection and traffic analysis
 
 Detection and traffic analysis transform network activity into alerts, protocol metadata, flow history, and investigation context. This layer feeds the correlation engine so the dashboard can show what happened, where it happened, and which asset is affected.
 
-#### Vulnerability visibility
+### Suricata alert example
+
+![SecureKeyBox Suricata scan alerts](assets/report-diagrams/framed/suricata-alerts.png)
+
+The screenshot shows Suricata alerts generated during the report's controlled Nmap test. Grouped entries expose the signature, severity, source and destination endpoints, protocol, occurrence count, and timestamp. This view gives the operator evidence to investigate before deciding on a block. An alert indicates detection; enforcement must be checked separately through firewall state and a follow-up connectivity test.
+
+### Vulnerability assessment
 
 ![Greenbone vulnerability visibility architecture](assets/report-diagrams/framed/greenbone-architecture.png)
 
@@ -230,25 +190,37 @@ The vulnerability layer connects known assets and detected services with securit
 
 The OpenVAS view complements the product's consolidated vulnerability display. It exposes scan tasks, task completion, assets, security information, and the vulnerability-test feed. In this snapshot, one task is marked done and the NVT chart represents the available test catalogue, not a count of vulnerabilities detected on the network. Findings from completed scans are associated with equipment and prioritized by the backend.
 
-#### Backend API and dashboard
+## Backend and operator interface
+
+### Backend API
 
 ![Backend API and dashboard](assets/diagrams/tech-05-backend-dashboard.svg)
 
 The backend API is the coordination point of the product. It normalizes data, stores structured records, prepares dashboard views, manages operator workflows, and sends validated actions toward security services.
 
-#### Signed ledger
+### Platform settings
 
-![Signed ledger chain architecture](assets/report-diagrams/framed/ledger-chain-architecture.png)
+The platform settings also control presentation preferences such as interface language, table density, theme, and date format, so exported views remain consistent with operational needs.
 
-![PKI signature architecture](assets/report-diagrams/framed/pki-signature-architecture.png)
+![SecureKeyBox platform settings](assets/report-diagrams/framed/settings-dashboard.png)
 
-The signed ledger receives sensitive events, creates a hash, links each record to the previous one, and stores a verifiable proof. If someone modifies an old record, the chain no longer validates.
+The settings view exposes light, dark, and system themes; French and English language selection; table density; and date formatting. Separate navigation entries organize network, collection, alerts, reports, and security settings. Save and reset controls manage pending presentation changes.
 
-#### Assistant and RAG layer
+## Product dashboard views
 
-![Assistant and RAG layer](assets/report-diagrams/framed/llm-rag-architecture.png)
+The interface gives operators a direct view of the appliance state, detected equipment, active services, incidents, and audit indicators. The following original prototype screenshots retain their French interface labels. Values and host addresses show the captured test environment.
 
-The assistant retrieves approved project context before producing an answer. It can explain alerts, summarize reports, and propose diagnostic steps, but it does not silently apply critical changes.
+### Operational dashboard
+
+The overview combines active equipment, blocked addresses, ledger integrity, critical vulnerabilities, and incidents awaiting analysis. Risk-ranked hosts and ledger activity charts help prioritize investigation. CPU, memory, network throughput, and service status show whether the appliance is healthy.
+
+![SecureKeyBox dashboard overview](assets/report-diagrams/framed/dashboard-overview.png)
+
+### Detected equipment
+
+The inventory distinguishes active, known, authorized, monitored, blocked, and offline equipment. Each card combines identity, address, device category, risk score, observed traffic, protocols, and alert or vulnerability counters. Search and status filters help operators select the host to investigate.
+
+![SecureKeyBox detected equipment](assets/report-diagrams/framed/dashboard-assets.png)
 
 ## Data and evidence model
 
@@ -265,6 +237,14 @@ The architecture separates raw logs, normalized events, operator actions, and si
 | Audit records | Configuration changes, sensitive actions, register updates. | Hashed, chained, signed, and verifiable. |
 
 ## Log integrity and auditability
+
+### Ledger and signature architecture
+
+![Signed ledger chain architecture](assets/report-diagrams/framed/ledger-chain-architecture.png)
+
+![PKI signature architecture](assets/report-diagrams/framed/pki-signature-architecture.png)
+
+The signed ledger receives sensitive events, creates a hash, links each record to the previous one, and stores a verifiable proof. If someone modifies an old record, the chain no longer validates.
 
 The log strategy has two goals: keep the system lightweight and preserve proof. The appliance should reduce disk usage without destroying the chain of evidence.
 
@@ -287,6 +267,82 @@ The log strategy has two goals: keep the system lightweight and preserve proof. 
 | Retention | Keep useful history according to operational policy. |
 | Signed ledger | Preserve a tamper-evident trace of important events. |
 
+### Integrity dashboard
+
+The integrity view displays chain validity, event count, recent changes, last verification, signature status, and current sequence. Filters narrow the audit trail by period, component, action, integrity, importance, actor, or address. The grouped timeline links recorded changes to their verification status.
+
+![SecureKeyBox integrity dashboard](assets/report-diagrams/framed/integrity-dashboard.png)
+
+### Signed event example
+
+![SecureKeyBox signed ledger event](assets/report-diagrams/framed/signed-ledger-event.png)
+
+The captured JSON record documents a Suricata configuration-file creation. It contains the action, category, component, file metadata, event hash, previous hash, sequence number, signature, and timestamp. These fields connect an individual change to the audit chain. Hash continuity and signature validation are separate checks; the presence of a signature in a record alone does not demonstrate successful verification.
+
+## Signed reports and exports
+
+SecureKeyBox includes a reporting layer for operational follow-up, security review, incident reconstruction, and audit evidence. Reports are generated from normalized events and can be tied back to the signed ledger so the operator can show when a report was produced, what it contained, and whether the associated evidence chain still validates.
+
+![SecureKeyBox signed reports dashboard](assets/report-diagrams/framed/reports-dashboard.png)
+
+### Report types
+
+| Report type | Purpose | Typical content |
+| --- | --- | --- |
+| Executive report | Gives management a readable security summary. | Network summary, number of assets, main alerts, high risks, critical vulnerabilities, recommended actions. |
+| Equipment report | Documents one host or device in detail. | Identity, traffic, protocols, alerts, vulnerabilities, and blocking history for a selected asset. |
+| Incident report | Reconstructs a security event. | Timeline, source and destination IPs, Suricata alerts, Zeek events, actions taken, and integrity proof. |
+| Integrity report | Proves the state of the evidence chain. | Number of changes, modified files, signatures, chain state, last hash, and verification result. |
+
+### Export formats
+
+| Format | Use |
+| --- | --- |
+| PDF | Human-readable signed report for audits, management reviews, and incident documentation. |
+| CSV | Lightweight export for SIEM import, spreadsheet filtering, or automated processing. |
+| Excel | Structured workbook for operational review, sorting, filtering, and sharing with non-technical teams. |
+
+### Generated equipment report
+
+![SecureKeyBox generated equipment report](assets/report-diagrams/framed/equipment-report.png)
+
+This exported report presents a selected host over a defined reporting period. Its first page combines identity, authorization status, a risk score, alert and critical-vulnerability counts, and observed protocols. Generation metadata records the operator and time. It shows the actual document produced by the reporting workflow rather than only the report-generation interface. The displayed counters are a snapshot and should be interpreted within the report's period and data scope.
+
+## Resilience mode
+
+SecureKeyBox includes a degraded-mode logic for situations where a service becomes unavailable, the system detects an anomaly, or the appliance must keep a minimal defensive posture while recovering.
+
+![SecureKeyBox resilience mode cycle](assets/report-diagrams/framed/resilience-cycle.png)
+
+The resilience cycle follows six stages:
+
+| Stage | Role |
+| --- | --- |
+| Monitoring | Monitor service health, network state, resource pressure, and appliance behavior. |
+| Anomaly detection | Identify outage, overload, failed service, suspicious condition, or attack symptom. |
+| Mode decision | Decide whether the appliance remains normal, switches to degraded mode, or enters a safe mode. |
+| Minimal protection | Keep essential filtering and local protection active even when advanced services are degraded. |
+| Recovery | Restart, resynchronize, or restore affected services in a controlled way. |
+| Return to normal | Validate restored services and resume standard operation with updated evidence. |
+
+### Recovery dashboard
+
+![SecureKeyBox recovery and service health dashboard](assets/report-diagrams/framed/recovery-dashboard.png)
+
+The operational view complements the resilience cycle with component status, current mode, protection availability, incident counts, time spent in SAFE mode, and mean time to recovery (MTTR). It also displays appliance temperature, disk use, and time distribution across NORMAL, RECOVERY, DEGRADED, OFFLINE, and SAFE states. The figures describe the captured observation window, not a production availability commitment.
+
+## Startup and diagnostics
+
+![SecureKeyBox startup and diagnostics flow](assets/report-diagrams/framed/startup-diagnostics-en.png)
+
+The startup flow detects the network interface and its IP/subnet, checks Suricata, Zeek, and the backend, then checks Firewall/Tailscale and overall health. A healthy result leads to normal mode; a failed result leads to diagnostics or degraded operation. The diagram preserves the report's flow and technology labels, with its French text translated into English.
+
+## CI/CD pipeline
+
+![SecureKeyBox successful CI/CD pipeline](assets/report-diagrams/framed/cicd-pipeline.png)
+
+The supplied GitHub Actions run shows three successful jobs: **validate**, **package**, and **deploy**, triggered through **workflow_dispatch**. Their displayed durations are 45 seconds, 6 seconds, and 1 minute 25 seconds. This screenshot demonstrates completion of that pipeline run; it does not expose the workflow implementation or establish which checks were executed inside each job.
+
 ## Assistant and knowledge layer
 
 The assistant is not a replacement for the operator. It is a support layer that helps interpret alerts, explain logs, summarize reports, and propose diagnostic steps from approved project knowledge.
@@ -300,6 +356,18 @@ The assistant is not a replacement for the operator. It is a support layer that 
 | Alert explanation | Events are translated into understandable risk context. |
 | Action guidance | The assistant proposes next steps, checks, and remediation paths. |
 | Human validation | Sensitive actions remain under operator control. |
+
+### Retrieval architecture
+
+![Assistant and RAG layer](assets/report-diagrams/framed/llm-rag-architecture.png)
+
+The assistant retrieves approved project context before producing an answer. It can explain alerts, summarize reports, and propose diagnostic steps, but it does not silently apply critical changes.
+
+### Report analysis in the assistant
+
+![SecureKeyBox assistant analyzing an equipment report](assets/report-diagrams/framed/assistant-dashboard.png)
+
+The operator attaches an equipment PDF and asks for an explanation. The assistant summarizes observations, discusses Suricata and Zeek context, and cites pages or reference material. The screenshot demonstrates the document-analysis workflow; generated interpretations still need to be checked against the underlying evidence. For example, a file-hosting-domain alert by itself does not establish exfiltration or malicious intent.
 
 ## RAG evaluation results
 
@@ -344,23 +412,6 @@ The captured pipeline takes approximately **5.97 seconds**: **190 ms** for BGE-M
 
 The pipeline connects the question encoder to vector retrieval, assembles selected evidence into context, and passes that context to the generation model. Retrieval scores support evidence selection; generated answers still require grounded citations and operator review for sensitive decisions.
 
-## Resilience mode
-
-SecureKeyBox includes a degraded-mode logic for situations where a service becomes unavailable, the system detects an anomaly, or the appliance must keep a minimal defensive posture while recovering.
-
-![SecureKeyBox resilience mode cycle](assets/report-diagrams/framed/resilience-cycle.png)
-
-The resilience cycle follows six stages:
-
-| Stage | Role |
-| --- | --- |
-| Monitoring | Monitor service health, network state, resource pressure, and appliance behavior. |
-| Anomaly detection | Identify outage, overload, failed service, suspicious condition, or attack symptom. |
-| Mode decision | Decide whether the appliance remains normal, switches to degraded mode, or enters a safe mode. |
-| Minimal protection | Keep essential filtering and local protection active even when advanced services are degraded. |
-| Recovery | Restart, resynchronize, or restore affected services in a controlled way. |
-| Return to normal | Validate restored services and resume standard operation with updated evidence. |
-
 ## Security boundaries
 
 This repository intentionally avoids publishing operational details that would weaken a real deployment.
@@ -377,7 +428,7 @@ Not published:
 
 - Secrets, keys, tokens, or credentials
 - Real customer data
-- Private network addresses
+- Production network configuration
 - Production firewall rules
 - Internal deployment scripts
 - Exploit procedures or offensive playbooks
