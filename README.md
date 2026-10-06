@@ -1,8 +1,8 @@
-# Ova Security
+# SecureKeyBox
 
 [Landing page](https://ovasecurity.vercel.app/)
 
-Public architecture documentation for **Ova Security**, a compact wired cybersecurity appliance designed to observe, filter, audit, and preserve local evidence for small and medium networks.
+Public architecture documentation for **SecureKeyBox**, a compact wired cybersecurity appliance designed to observe, filter, audit, and preserve local evidence for small and medium networks.
 
 This repository presents the architecture at a public level. It does not contain secrets, internal credentials, production configuration, private deployment procedures, or customer data.
 
@@ -21,15 +21,16 @@ This repository presents the architecture at a public level. It does not contain
 - [Data and evidence model](#data-and-evidence-model)
 - [Log integrity and auditability](#log-integrity-and-auditability)
 - [Assistant and knowledge layer](#assistant-and-knowledge-layer)
+- [RAG evaluation results](#rag-evaluation-results)
 - [Resilience mode](#resilience-mode)
 - [Security boundaries](#security-boundaries)
 - [License](#license)
 
 ## Product overview
 
-Ova Security is positioned as an **edge cyber appliance**: a local box installed between the internet access point and the protected internal network. Its objective is to bring together monitoring, filtering, vulnerability visibility, audit evidence, and operator assistance in one controlled platform.
+SecureKeyBox is positioned as an **edge cyber appliance**: a local box installed between the internet access point and the protected internal network. Its objective is to bring together monitoring, filtering, vulnerability visibility, audit evidence, and operator assistance in one controlled platform.
 
-![Ova Security system architecture](assets/report-diagrams/framed/system-architecture.png)
+![SecureKeyBox system architecture](assets/report-diagrams/framed/system-architecture.png)
 
 The product is built around four principles:
 
@@ -42,19 +43,19 @@ The product is built around four principles:
 
 ## Appliance visual model
 
-The appliance is represented as a compact edge box. The repository includes the supplied 3D enclosure model directly, without converting it to an animated preview, so its original geometry, colors, and materials stay intact.
+The appliance is represented as a compact edge box. The supplied GIF shows the enclosure, while the original GLB file preserves its geometry, colors, and materials.
 
 <p align="center">
-  <img src="assets/report-diagrams/framed/appliance-model.gif" alt="OvaSecurity appliance model" width="360">
+  <img src="assets/report-diagrams/framed/appliance-model.gif" alt="SecureKeyBox appliance model" width="360">
 </p>
 
-[Open the OvaSecurity GLB model](assets/models/ova-security-edge-appliance.glb)
+[Open the SecureKeyBox GLB model](assets/models/ova-security-edge-appliance.glb)
 
 ## Edge network position
 
-Ova Security is designed to sit at the edge of the protected network. It receives traffic from the upstream router, applies filtering and inspection, then exposes only validated flows toward internal equipment.
+SecureKeyBox is designed to sit at the edge of the protected network. It receives traffic from the upstream router, applies filtering and inspection, then exposes only validated flows toward internal equipment.
 
-![Ova Security edge network zones](assets/report-diagrams/framed/edge-network-zones.png)
+![SecureKeyBox edge network zones](assets/report-diagrams/framed/edge-network-zones.png)
 
 ### Network zones
 
@@ -80,9 +81,9 @@ The platform is structured in layers. Each layer has a clear responsibility so t
 
 ## Functional modules
 
-Ova Security is presented as a product, not as a collection of disconnected tools. The modules below form one operational chain.
+SecureKeyBox is presented as a product, not as a collection of disconnected tools. The modules below form one operational chain.
 
-![Ova Security public edge capabilities](assets/report-diagrams/framed/public-edge-capabilities.png)
+![SecureKeyBox public edge capabilities](assets/report-diagrams/framed/public-edge-capabilities.png)
 
 | Module | Purpose | Typical output |
 | --- | --- | --- |
@@ -96,19 +97,31 @@ Ova Security is presented as a product, not as a collection of disconnected tool
 
 ## Product dashboard views
 
-The interface gives operators a direct view of the appliance state, detected equipment, active services, incidents, and audit indicators. The screenshots below are public documentation views with anonymized names and documentation IP addresses.
+The interface gives operators a direct view of the appliance state, detected equipment, active services, incidents, and audit indicators. The following original prototype screenshots retain their French interface labels. Values and host addresses show the captured test environment.
 
-![Ova Security dashboard overview](assets/report-diagrams/framed/dashboard-overview.png)
+### Operational dashboard
 
-![Ova Security detected equipment](assets/report-diagrams/framed/dashboard-assets.png)
+The overview combines active equipment, blocked addresses, ledger integrity, critical vulnerabilities, and incidents awaiting analysis. Risk-ranked hosts and ledger activity charts help prioritize investigation. CPU, memory, network throughput, and service status show whether the appliance is healthy.
 
-![Ova Security integrity dashboard](assets/report-diagrams/framed/integrity-dashboard.png)
+![SecureKeyBox dashboard overview](assets/report-diagrams/framed/dashboard-overview.png)
+
+### Detected equipment
+
+The inventory distinguishes active, known, authorized, monitored, blocked, and offline equipment. Each card combines identity, address, device category, risk score, observed traffic, protocols, and alert or vulnerability counters. Search and status filters help operators select the host to investigate.
+
+![SecureKeyBox detected equipment](assets/report-diagrams/framed/dashboard-assets.png)
+
+### Integrity and traceability
+
+The integrity view displays chain validity, event count, recent changes, last verification, signature status, and current sequence. Filters narrow the audit trail by period, component, action, integrity, importance, actor, or address. The grouped timeline links recorded changes to their verification status.
+
+![SecureKeyBox integrity dashboard](assets/report-diagrams/framed/integrity-dashboard.png)
 
 ## Signed reports and exports
 
-Ova Security includes a reporting layer for operational follow-up, security review, incident reconstruction, and audit evidence. Reports are generated from normalized events and can be tied back to the signed ledger so the operator can show when a report was produced, what it contained, and whether the associated evidence chain still validates.
+SecureKeyBox includes a reporting layer for operational follow-up, security review, incident reconstruction, and audit evidence. Reports are generated from normalized events and can be tied back to the signed ledger so the operator can show when a report was produced, what it contained, and whether the associated evidence chain still validates.
 
-![Ova Security signed reports dashboard](assets/report-diagrams/framed/reports-dashboard.png)
+![SecureKeyBox signed reports dashboard](assets/report-diagrams/framed/reports-dashboard.png)
 
 ### Report types
 
@@ -129,7 +142,9 @@ Ova Security includes a reporting layer for operational follow-up, security revi
 
 The platform settings also control presentation preferences such as interface language, table density, theme, and date format, so exported views remain consistent with operational needs.
 
-![Ova Security platform settings](assets/report-diagrams/framed/settings-dashboard.png)
+![SecureKeyBox platform settings](assets/report-diagrams/framed/settings-dashboard.png)
+
+The settings view exposes light, dark, and system themes; French and English language selection; table density; and date formatting. Separate navigation entries organize network, collection, alerts, reports, and security settings. Save and reset controls manage pending presentation changes.
 
 ## Technology role map
 
@@ -147,7 +162,7 @@ The implementation can rely on well-known open-source components while keeping t
 
 ## How the system works
 
-Ova Security works as a controlled chain. Each component produces data for the next one, and sensitive actions are kept visible to the operator.
+SecureKeyBox works as a controlled chain. Each component produces data for the next one, and sensitive actions are kept visible to the operator.
 
 1. **Traffic enters the appliance** from the upstream network interface.
 2. **The firewall layer applies the active policy** and separates unauthorized traffic from allowed traffic.
@@ -165,7 +180,7 @@ This creates a defensive loop: **observe -> correlate -> decide -> enforce -> pr
 
 The technologies below are described by role, not by private configuration. The repository explains how they cooperate inside the architecture without publishing deployable secrets or internal rules.
 
-| Technology / block | Role in Ova Security | Input | Output | Integration logic |
+| Technology / block | Role in SecureKeyBox | Input | Output | Integration logic |
 | --- | --- | --- | --- | --- |
 | Linux appliance runtime | Hosts the complete local platform and supervises services. | Boot process, network interfaces, service definitions. | Running security and application services. | Provides the stable base for scheduled jobs, local storage, permissions, and service recovery. |
 | Firewall engine | Enforces the network security policy. | Validated rules, blocked IP decisions, interface zones. | Allowed traffic, refused traffic, rule state. | Receives controlled decisions from the backend and applies them at the network edge. |
@@ -189,6 +204,12 @@ Each technology block has a focused diagram showing how it receives input, what 
 
 The runtime layer starts the appliance services, supervises process state, exposes network interfaces, manages local storage permissions, and runs scheduled collection tasks. It is the base that keeps the product stable even when one service must restart or recover.
 
+#### System administration with Webmin
+
+![SecureKeyBox Webmin system administration](assets/report-diagrams/framed/webmin-dashboard.png)
+
+Webmin provides a separate host administration view alongside the SOC dashboard. The supplied capture identifies a Raspberry Pi 5 running Ubuntu Linux and shows CPU, physical and virtual memory, disk usage, uptime, running processes, and package updates. Operators use this view to diagnose resource pressure and inspect the underlying host; security-event investigation remains in the product dashboard. The snapshot shows high virtual-memory usage, which deserves investigation but does not by itself establish a service failure.
+
 #### Firewall engine
 
 ![Firewall and detection architecture](assets/report-diagrams/framed/suricata-firewall-architecture.png)
@@ -204,6 +225,10 @@ Detection and traffic analysis transform network activity into alerts, protocol 
 ![Greenbone vulnerability visibility architecture](assets/report-diagrams/framed/greenbone-architecture.png)
 
 The vulnerability layer connects known assets and detected services with security findings. Its role is not only to list weaknesses, but to prioritize them according to exposure, affected service, and operational importance.
+
+![OpenVAS vulnerability scanner dashboard](assets/report-diagrams/framed/openvas-dashboard.png)
+
+The OpenVAS view complements the product's consolidated vulnerability display. It exposes scan tasks, task completion, assets, security information, and the vulnerability-test feed. In this snapshot, one task is marked done and the NVT chart represents the available test catalogue, not a count of vulnerabilities detected on the network. Findings from completed scans are associated with equipment and prioritized by the backend.
 
 #### Backend API and dashboard
 
@@ -276,11 +301,54 @@ The assistant is not a replacement for the operator. It is a support layer that 
 | Action guidance | The assistant proposes next steps, checks, and remediation paths. |
 | Human validation | Sensitive actions remain under operator control. |
 
+## RAG evaluation results
+
+These figures document the supplied prototype evaluation. They describe the captured results, not guaranteed performance for every deployment. The attachments do not specify the sample size, query set, relevance-labeling procedure, hardware used for inference, or number of repeated measurements.
+
+### Retrieval recall
+
+![RAG retrieval recall](assets/report-diagrams/framed/rag-recall.png)
+
+Recall@K measures the fraction of relevant documents found among the first K retrieved results. Recall rises from **0.77 at K=1** to **0.90 at K=3**, **0.93 at K=5**, and **0.97 at K=10**. Retrieving more documents improves coverage in this evaluation, with smaller gains after the first three results.
+
+### Retrieval precision
+
+![RAG retrieval precision](assets/report-diagrams/framed/rag-precision.png)
+
+Precision@K measures the fraction of retrieved documents judged relevant. It falls from **0.77 at K=1** to **0.31 at K=3**, **0.19 at K=5**, and **0.10 at K=10**. Wider retrieval therefore adds context but also adds irrelevant material. Recall and precision should be considered together when choosing K, filtering evidence, or adding a reranking stage.
+
+| K | Recall@K | Precision@K |
+| --- | --- | --- |
+| 1 | 0.77 | 0.77 |
+| 3 | 0.90 | 0.31 |
+| 5 | 0.93 | 0.19 |
+| 10 | 0.97 | 0.10 |
+
+### Retrieved-document similarity
+
+![RAG retrieved-document cosine similarity](assets/report-diagrams/framed/rag-similarity.png)
+
+The eight displayed documents score between **0.65 and 0.68** in cosine similarity. All exceed the shown evidence threshold of **0.45** and answer threshold of **0.40**. These thresholds can gate evidence selection and answer generation, but similarity alone does not prove factual correctness or document relevance.
+
+### Response-score distribution
+
+![RAG response-score distribution](assets/report-diagrams/framed/rag-response-distribution.png)
+
+The supplied distribution assigns **3%** of responses to the low band (below 0.40), **3%** to medium (0.40-0.55), **20%** to high (0.55-0.75), and **73%** to very high (above 0.75). The displayed rounded percentages sum to 99%. The score definition is not included in the attachment, so these bands should not be interpreted as measured answer accuracy.
+
+### Pipeline latency
+
+![RAG pipeline latency](assets/report-diagrams/framed/rag-latency.png)
+
+The captured pipeline takes approximately **5.97 seconds**: **190 ms** for BGE-M3 embedding, **23 ms** for Qdrant retrieval, context construction displayed as **0 ms**, and **5.76 seconds** for Gemma 4 generation. The displayed zero may reflect measurement resolution rather than literally no work. Generation accounts for roughly **96%** of the displayed total and dominates response time.
+
+The pipeline connects the question encoder to vector retrieval, assembles selected evidence into context, and passes that context to the generation model. Retrieval scores support evidence selection; generated answers still require grounded citations and operator review for sensitive decisions.
+
 ## Resilience mode
 
-Ova Security includes a degraded-mode logic for situations where a service becomes unavailable, the system detects an anomaly, or the appliance must keep a minimal defensive posture while recovering.
+SecureKeyBox includes a degraded-mode logic for situations where a service becomes unavailable, the system detects an anomaly, or the appliance must keep a minimal defensive posture while recovering.
 
-![Ova Security resilience mode cycle](assets/report-diagrams/framed/resilience-cycle.png)
+![SecureKeyBox resilience mode cycle](assets/report-diagrams/framed/resilience-cycle.png)
 
 The resilience cycle follows six stages:
 
