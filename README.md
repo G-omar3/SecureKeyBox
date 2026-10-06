@@ -118,6 +118,10 @@ The implementation can rely on well-known open-source components while keeping t
 
 SecureKeyBox works as a controlled chain. Each component produces data for the next one, and sensitive actions are kept visible to the operator.
 
+![SecureKeyBox operational workflow](assets/diagrams/system-workflow.svg)
+
+Read the numbered path from left to right on the first row, right to left on the second, then left to right on the third. The green return path represents operator-approved firewall changes; the purple path represents assistant guidance to the operator. The diagram summarizes the operational workflow rather than the physical packet route.
+
 1. **Traffic enters the appliance** from the upstream network interface.
 2. **The firewall layer applies the active policy** and separates unauthorized traffic from allowed traffic.
 3. **Detection and traffic analysis services observe events** such as suspicious flows, protocol activity, service exposure, and abnormal behavior.
